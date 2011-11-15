@@ -21,19 +21,22 @@ def handles():
     hosts = [h.replace("%", "") for h in hosts]
     return hosts
 
-def handler(host, path):
+def handler(host, path, mplayer):
     """URL handler."""
     known_hosts = handles()
+    # XXX: can 'in' be greedier?
     if host.startswith("www."):
         host = host[4:]
     if host in known_hosts:
         url = "http://{0}{1}".format(host, path)
         cmd = ["quvi", "--quiet", "--format=best", url, "--exec",
-               "mplayer -really-quiet %u"]
+               "{0} %u".format(mplayer)]
         subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
     """Start execution of flashback."""
+    mplayer = "mplayer -fs -really-quiet"
+
     # Setup logging
     logging.basicConfig(format="%(name)s: %(levelname)s: %(message)s")
     logger = logging.getLogger(os.path.basename(__file__))
@@ -45,7 +48,7 @@ def main():
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
-                handler(regex.group(2), regex.group(1))
+                handler(regex.group(2), regex.group(1), mplayer)
     except OSError:
         logger.error("must be run as root")
     except KeyboardInterrupt:
