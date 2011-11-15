@@ -8,6 +8,7 @@ import re
 import logging
 import os.path
 import subprocess
+import json
 
 def handles():
     """Get the supported hosts from quvi."""
@@ -21,7 +22,7 @@ def handles():
     hosts = [h.replace("%", "") for h in hosts]
     return hosts
 
-def handler(host, path, mplayer):
+def handler(host, path, parser):
     """URL handler."""
     known_hosts = handles()
     # XXX: can 'in' be greedier?
@@ -29,13 +30,15 @@ def handler(host, path, mplayer):
         host = host[4:]
     if host in known_hosts:
         url = "http://{0}{1}".format(host, path)
-        cmd = ["quvi", "--quiet", "--format=best", url, "--exec",
-               "{0} %u".format(mplayer)]
+        cmd = parser + [url]
         subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
     """Start execution of flashback."""
     mplayer = "mplayer -fs -really-quiet"
+    quvi = "quvi --quiet --format=best --exec"
+    parser = quvi.split(" ")
+    parser.append("{0} %u".format(mplayer))
 
     # Setup logging
     logging.basicConfig(format="%(name)s: %(levelname)s: %(message)s")
@@ -48,7 +51,7 @@ def main():
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
-                handler(regex.group(2), regex.group(1), mplayer)
+                handler(regex.group(2), regex.group(1), parser)
     except OSError:
         logger.error("must be run as root")
     except KeyboardInterrupt:
