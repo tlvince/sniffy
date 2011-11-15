@@ -6,26 +6,37 @@
 import pcap
 import re
 import logging
+import os.path
+import subprocess
 
-from os.path import basename
-from subprocess import Popen, PIPE
+def handles():
+    """Get the supported hosts from quvi."""
+    # Get all hosts
+    hosts = subprocess.check_output(["quvi", "--support"]).split("\n")
+    # Remove empty element (final \n\n)
+    hosts = hosts[:-1]
+    # Filter query formats
+    hosts = [h.split("\t")[0] for h in hosts]
+    # Remove odd characters
+    hosts = [h.replace("%", "") for h in hosts]
+    return hosts
 
 def handler(host, path):
     """URL handler."""
-    try:
-        host.index("youtube.com")
+    known_hosts = handles()
+    if host.startswith("www."):
+        host = host[4:]
+    if host in known_hosts:
         url = "http://{0}{1}".format(host, path)
         cmd = ["quvi", "--quiet", "--format=best", url, "--exec",
                "mplayer -really-quiet %u"]
-        Popen(cmd, stdout=PIPE, stderr=PIPE)
-    except ValueError:
-        pass
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
     """Start execution of flashback."""
     # Setup logging
     logging.basicConfig(format="%(name)s: %(levelname)s: %(message)s")
-    logger = logging.getLogger(basename(__file__))
+    logger = logging.getLogger(os.path.basename(__file__))
 
     pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
     try:
@@ -39,6 +50,8 @@ def main():
         logger.error("must be run as root")
     except KeyboardInterrupt:
         pass
+    except Exception as e:
+        logger.error(e)
 
 if __name__ == "__main__":
     main()
