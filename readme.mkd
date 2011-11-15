@@ -1,0 +1,15 @@
+# Flashback
+
+On it's own, `flashback` is a rather lonely, useless fellow. United with his
+friends [pypcap][] and [quvi][] however, these superheros collaborate to rid the
+world of the evil Dr. `flash`!
+
+Well okay...
+
+## Etomology
+
+`flashback` started life as [ytmp][]: a usable, but somewhat clunky bash script.
+
+  [quvi]: http://quvi.sourceforge.net/
+  [pypcap]: https://code.google.com/p/pypcap/
+  [ytmp]: https://github.com/tlvince/ytmp
