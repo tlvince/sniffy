@@ -8,6 +8,15 @@ import re
 import logging
 import os.path
 import subprocess
+import argparse
+
+def parse_arguments(log_levels):
+    """Parse the command-line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("-l", "--log-level", default="WARN", choices=log_levels,
+            help="logging level (default: %(default)s)")
+    parser.add_argument("-f", "--log-file", help="logging file name")
+    return parser.parse_args()
 
 def handles():
     """Format quvi's supported hosts."""
@@ -36,20 +45,26 @@ def handler(host, path, known_hosts, parser):
     if host in known_hosts:
         url = "http://{0}{1}".format(host, path)
         cmd = parser + [url]
+        logging.info("loading {0}".format(url))
         subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
     """Start execution of flashback."""
+    log_levels = [k for k in logging.__dict__["_levelNames"].keys() if not
+            isinstance(k, int)]
+
+    args = parse_arguments(log_levels)
+
+    logging.basicConfig(level=args.log_level, filename=args.log_file,
+        format="{name}: %(levelname)s: %(message)s".format(
+            name=os.path.basename(__file__)))
+
     mplayer = "mplayer -fs -really-quiet"
     quvi = "quvi --quiet --format=best --exec"
     parser = quvi.split(" ")
     parser.append("{0} %u".format(mplayer))
 
     known_hosts = handles()
-
-    # Setup logging
-    logging.basicConfig(format="%(name)s: %(levelname)s: %(message)s")
-    logger = logging.getLogger(os.path.basename(__file__))
 
     pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
     try:
@@ -60,11 +75,11 @@ def main():
             if regex:
                 handler(regex.group(2), regex.group(1), known_hosts, parser)
     except OSError:
-        logger.error("must be run as root")
+        logging.error("must be run as root")
     except KeyboardInterrupt:
         pass
     except Exception as e:
-        logger.error(e)
+        logging.error(e)
 
 if __name__ == "__main__":
     main()
