@@ -6,9 +6,33 @@
 import pcap
 import re
 import logging
-import os.path
 import subprocess
 import argparse
+import os
+import pwd
+import grp
+
+def drop_privileges(uid_name="nobody", gid_name="nobody"):
+    """Drop root privileges.
+    From: http://stackoverflow.com/q/2699907/2699996#2699996
+    """
+    if os.getuid() != 0:
+        # We're not root so, like, whatever dude
+        return
+
+    # Get the uid/gid from the name
+    running_uid = pwd.getpwnam(uid_name).pw_uid
+    running_gid = grp.getgrnam(gid_name).gr_gid
+
+    # Remove group privileges
+    os.setgroups([])
+
+    # Try setting the new uid/gid
+    os.setgid(running_gid)
+    os.setuid(running_uid)
+
+    # Ensure a very conservative umask
+    old_umask = os.umask(077)
 
 def parse_arguments():
     """Parse the command-line arguments."""
@@ -28,6 +52,8 @@ def parse_arguments():
         help="media player command")
     parser.add_argument("-p", "--parser", default=quvi,
         help="video hosting URL parser command")
+    parser.add_argument("-i", "--interface", default="eth0",
+        help="network interface name")
     return parser.parse_args()
 
 def quvi_hosts():
@@ -63,6 +89,7 @@ def handler(host, path, known_hosts, parser):
 
 def main():
     """Start execution of flashback."""
+    # Parse the CLI arguments
     args = parse_arguments()
 
     # Setup logging
@@ -70,18 +97,27 @@ def main():
         format="{name}: %(levelname)s: %(message)s".format(
             name=os.path.basename(__file__)))
 
+    # Get the supported sites
     known_hosts = quvi_hosts()
 
+    # Listen for GET requests
     pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
+
     try:
-        pc = pcap.pcap(name="eth0", snaplen=1500)
+        # Setup a packet capturer (needs root permissions)
+        pc = pcap.pcap(name=args.interface, snaplen=1500)
+
+        # Drop root permissions ASAP
+        drop_privileges()
+
+        # Listen for HTTP traffic only
         pc.setfilter("tcp and dst port 80")
+
+        # Check every packet and forward handler if it looks interesting
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
                 handler(regex.group(2), regex.group(1), known_hosts, args.parser)
-    except OSError:
-        logging.error("must be run as root")
     except KeyboardInterrupt:
         pass
     except Exception as e:
