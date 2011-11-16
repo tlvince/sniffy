@@ -58,7 +58,9 @@ def parse_arguments():
     return parser.parse_args()
 
 def quvi_hosts():
-    """Format quvi's supported hosts."""
+    """Format quvi's supported hosts.
+    XXX: This is costly and needs some work
+    """
     # Get all hosts
     hosts = subprocess.check_output(["quvi", "--support"]).split("\n")[:-1]
     # Filter query formats
