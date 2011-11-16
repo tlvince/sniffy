@@ -8,19 +8,22 @@ import re
 import logging
 import os.path
 import subprocess
-import json
 
 def handles():
-    """Get the supported hosts from quvi."""
+    """Format quvi's supported hosts."""
     # Get all hosts
-    hosts = subprocess.check_output(["quvi", "--support"]).split("\n")
-    # Remove empty element (final \n\n)
-    hosts = hosts[:-1]
+    hosts = subprocess.check_output(["quvi", "--support"]).split("\n")[:-1]
     # Filter query formats
     hosts = [h.split("\t")[0] for h in hosts]
-    # Remove odd characters
-    hosts = [h.replace("%", "") for h in hosts]
-    return hosts
+    # Replace weird sub-strings
+    for pattern in [("%", ""), (".w+", ".com")]:
+        original, replacement = pattern
+        hosts = [h.replace(original, replacement) for h in hosts]
+    # XXX: Split related websites
+    related = []
+    for i in hosts:
+        related.extend(i.split("|"))
+    return related
 
 def handler(host, path, parser):
     """URL handler."""
