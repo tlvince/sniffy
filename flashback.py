@@ -19,14 +19,15 @@ def parse_arguments():
     quvi = ["quvi", "--format=best", "--exec"]
     quvi.append("{0} %u".format(mplayer))
 
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--log-level", default="WARN", choices=log_levels,
-       help="logging level (default: %(default)s)")
+        help="logging level")
     parser.add_argument("-f", "--log-file", help="logging file name")
     parser.add_argument("-m", "--media-player", default=mplayer,
-        help="media player command (default: '%(default)s')")
+        help="media player command")
     parser.add_argument("-p", "--parser", default=quvi,
-        help="video hosting URL parser command (default: %(default)s)")
+        help="video hosting URL parser command")
     return parser.parse_args()
 
 def quvi_hosts():
