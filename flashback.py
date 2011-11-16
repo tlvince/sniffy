@@ -11,6 +11,7 @@ import argparse
 import os
 import pwd
 import grp
+import sys
 
 def drop_privileges(uid_name="nobody", gid_name="nobody"):
     """Drop root privileges.
@@ -89,28 +90,32 @@ def handler(host, path, known_hosts, parser):
 
 def main():
     """Start execution of flashback."""
-    # Parse the CLI arguments
-    args = parse_arguments()
-
-    # Setup logging
-    logging.basicConfig(level=args.log_level, filename=args.log_file,
-        format="{name}: %(levelname)s: %(message)s".format(
-            name=os.path.basename(__file__)))
-
-    # Get the supported sites
-    known_hosts = quvi_hosts()
-
-    # Listen for GET requests
-    pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
-
     try:
+        # Parse the CLI arguments
+        args = parse_arguments()
+
         # Setup a packet capturer (needs root permissions)
         pc = pcap.pcap(name=args.interface, snaplen=1500)
+    except OSError as e:
+        sys.stderr.write("{0}\n".format(str(e)))
+        sys.exit(1)
 
+    try:
         # Drop root permissions ASAP
         drop_privileges()
 
-        # Listen for HTTP traffic only
+        # Setup logging
+        logging.basicConfig(level=args.log_level, filename=args.log_file,
+            format="{name}: %(levelname)s: %(message)s".format(
+                name=os.path.basename(__file__)))
+
+        # Get the supported sites
+        known_hosts = quvi_hosts()
+
+        # Listen for GET requests
+        pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
+
+        # Listen on HTTP traffic only
         pc.setfilter("tcp and dst port 80")
 
         # Check every packet and forward handler if it looks interesting
