@@ -25,9 +25,11 @@ def handles():
         related.extend(i.split("|"))
     return related
 
-def handler(host, path, parser):
+def handler(host, path, known_hosts, parser):
     """URL handler."""
-    known_hosts = handles()
+    # Ignore root paths
+    if len(path) == 1:
+        return
     # XXX: can 'in' be greedier?
     if host.startswith("www."):
         host = host[4:]
@@ -43,6 +45,8 @@ def main():
     parser = quvi.split(" ")
     parser.append("{0} %u".format(mplayer))
 
+    known_hosts = handles()
+
     # Setup logging
     logging.basicConfig(format="%(name)s: %(levelname)s: %(message)s")
     logger = logging.getLogger(os.path.basename(__file__))
@@ -54,7 +58,7 @@ def main():
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
-                handler(regex.group(2), regex.group(1), parser)
+                handler(regex.group(2), regex.group(1), known_hosts, parser)
     except OSError:
         logger.error("must be run as root")
     except KeyboardInterrupt:
