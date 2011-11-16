@@ -10,6 +10,11 @@ Well okay...
 
 `flashback` started life as [ytmp][]: a usable, but somewhat clunky bash script.
 
+## To do
+
+* Consider [python-quvi][] (Windows support?)
+
   [quvi]: http://quvi.sourceforge.net/
   [pypcap]: https://code.google.com/p/pypcap/
   [ytmp]: https://github.com/tlvince/ytmp
+  [python-quvi]: https://github.com/metal3d/python-quvi
