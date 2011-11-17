@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # Copyright 2011 Tom Vincent <http://tlvince.com/contact/>
 
-"""Sniff video hosting URLs for Flash-free consumption."""
+"""Sniff media hosting websites for Flash-free consumption."""
 
 import pcap
 import re
@@ -15,7 +15,11 @@ import sys
 
 def drop_privileges(uid_name="nobody", gid_name="nobody"):
     """Drop root privileges.
+
     From: http://stackoverflow.com/q/2699907/2699996#2699996
+
+    uid_name - The user identifier String to switch to.
+    gid_name - The corresponding group identifier String.
     """
     if os.getuid() != 0:
         # We're not root so, like, whatever dude
@@ -36,7 +40,10 @@ def drop_privileges(uid_name="nobody", gid_name="nobody"):
     old_umask = os.umask(077)
 
 def parse_arguments():
-    """Parse the command-line arguments."""
+    """Parse the command-line arguments.
+
+    Returns a populated argument namespace.
+    """
     # Defaults
     log_levels = [k for k in logging.__dict__["_levelNames"].keys() if not
             isinstance(k, int)]
@@ -59,7 +66,10 @@ def parse_arguments():
 
 def quvi_hosts():
     """Format quvi's supported hosts.
+
     XXX: This is costly and needs some work
+
+    Returns a list of hosts supported by quvi.
     """
     # Get all hosts
     hosts = subprocess.check_output(["quvi", "--support"]).split("\n")[:-1]
@@ -76,7 +86,13 @@ def quvi_hosts():
     return related
 
 def handler(host, path, known_hosts, parser):
-    """URL handler."""
+    """Parse known media hosting URLs and pass to a player.
+
+    host        - A website hostname (e.g. youtube.com).
+    path        - The path component of a URL (e.g. /watch?v=0gzA6Xzbh1k).
+    known_hosts - A list of hosts supported by the URL parser.
+    parser      - The command line string of the parser.
+    """
     url = "http://{0}{1}".format(host, path)
     logging.debug("handling {0}".format(url))
     # Ignore root paths
