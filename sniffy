@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # Copyright 2011 Tom Vincent <http://tlvince.com/contact/>
 
-"""Sniff video hosting URLs for flash-free consumption."""
+"""Sniff video hosting URLs for Flash-free consumption."""
 
 import pcap
 import re
