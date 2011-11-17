@@ -120,7 +120,8 @@ def main():
 
     try:
         # Drop root permissions ASAP
-        drop_privileges()
+        # XXX: ALSA requires audio group
+        drop_privileges("nobody", "audio")
 
         # Setup logging
         logging.basicConfig(level=args.log_level, filename=args.log_file,
