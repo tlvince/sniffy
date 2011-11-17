@@ -93,21 +93,33 @@ def handler(host, path, known_hosts, parser):
     known_hosts - A list of hosts supported by the URL parser.
     parser      - The command line string of the parser.
     """
+    # Ignore paths that contain:
+    blacklist = [".jpg", ".png", ".gif", ".css", ".woff", ".js"]
+
     url = "http://{0}{1}".format(host, path)
-    logging.debug("handling {0}".format(url))
+
     # Ignore root paths
     if len(path) == 1:
         return
-    # XXX: can 'in' be greedier?
+
+    # Ignore paths containing a blacklisted substring
+    for b in blacklist:
+        if b in path:
+            logging.debug("blacklisted {0}".format(url))
+            return
+
+    logging.debug("handling {0}".format(url))
+
+    # Strip leading www
     if host.startswith("www."):
         host = host[4:]
+
     if host in known_hosts:
-        cmd = parser + [url]
         logging.info("playing {0}".format(url))
         # Silence the process
         # See: http://stackoverflow.com/q/1244723
         fh = open(os.devnull, "w")
-        subprocess.Popen(cmd, stdout=fh, stderr=fh).wait()
+        subprocess.Popen(parser + [url], stdout=fh, stderr=fh).wait()
         fh.close()
 
 def main():
