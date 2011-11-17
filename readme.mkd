@@ -1,20 +1,42 @@
 # Sniffy
 
-On it's own, `sniffy` is a rather lonely, useless fellow. United with his
-friends [pypcap][] and [quvi][] however, these superheros collaborate to rid the
-world of the evil Dr. `flash`!
+`sniffy` monitors network traffic for media hosting websites and streams them in
+your favourite media player.
 
-Well okay...
+* It aims to keep out of your way and help rid the world of Flash
+* It works in conjunction with *any* web browser, even [Lynx][]!
 
-## Etomology
+## Usage
 
-`sniffy` started life as [ytmp][]: a usable, but somewhat clunky bash script.
+1. Install [pypcap][] and [quvi][]
+2. Run `sniffy` as root (it'll drop privileges as soon as it can)
+3. Browse the [supported sites][]
+
+## Why?
+
+* Flash should not be a *requirement* for media consumption on the web
+* Flash has [performance issues][fper]
+* Flash is [insecure][fsec]
+* HTML5 is not widspread enough
+* Sniffy's cousin -- [ytmp][] -- is too clunky
+
+## Who?
+
+Lovingly crafted by [Tom Vincent][home] under the GPL License.
+
+You should follow me on [Twitter][].
 
 ## To do
 
-* Consider [python-quvi][] (Windows support?)
+* Consider [python-quvi][]
+* Windows support?
 
   [quvi]: http://quvi.sourceforge.net/
   [pypcap]: https://code.google.com/p/pypcap/
   [ytmp]: https://github.com/tlvince/ytmp
   [python-quvi]: https://github.com/metal3d/python-quvi
+  [home]: http://tlvince.com
+  [twitter]: https://twitter.com/tlvince
+  [fper]: https://en.wikipedia.org/wiki/Adobe_Flash#Performance
+  [fsec]: https://en.wikipedia.org/wiki/Adobe_Flash#Flash_client_security
+  [lynx]: https://en.wikipedia.org/wiki/Lynx_(web_browser)
