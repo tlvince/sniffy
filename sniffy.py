@@ -91,7 +91,7 @@ def handler(host, path, known_hosts, parser):
         subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 def main():
-    """Start execution of flashback."""
+    """Start execution of sniffy."""
     try:
         # Parse the CLI arguments
         args = parse_arguments()
