@@ -44,20 +44,19 @@ def parse_arguments():
 
     Returns a populated argument namespace.
     """
-    # Defaults
+    # List of logging levels
     log_levels = [k for k in logging.__dict__["_levelNames"].keys() if not
             isinstance(k, int)]
-    mplayer = "mplayer -fs"
 
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-l", "--log-level", default="WARN", choices=log_levels,
         help="logging level")
     parser.add_argument("-f", "--log-file", help="logging file name")
-    parser.add_argument("-m", "--media-player", default=mplayer,
+    parser.add_argument("-m", "--media-player", default="mplayer -fs",
         help="media player command")
     parser.add_argument("-q", "--quvi", default="best",
-        choices=["best", "default"], help="quvi media format")
+        choices=["best", "default"], help="quvi media quality format")
     parser.add_argument("-i", "--interface", default="eth0",
         help="network interface name")
     return parser.parse_args()
