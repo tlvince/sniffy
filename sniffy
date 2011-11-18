@@ -48,8 +48,6 @@ def parse_arguments():
     log_levels = [k for k in logging.__dict__["_levelNames"].keys() if not
             isinstance(k, int)]
     mplayer = "mplayer -fs"
-    quvi = ["quvi", "--format=best", "--exec"]
-    quvi.append("{0} %u".format(mplayer))
 
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -58,8 +56,8 @@ def parse_arguments():
     parser.add_argument("-f", "--log-file", help="logging file name")
     parser.add_argument("-m", "--media-player", default=mplayer,
         help="media player command")
-    parser.add_argument("-p", "--parser", default=quvi,
-        help="video hosting URL parser command")
+    parser.add_argument("-q", "--quvi", default="best",
+        choices=["best", "default"], help="quvi media format")
     parser.add_argument("-i", "--interface", default="eth0",
         help="network interface name")
     return parser.parse_args()
@@ -153,6 +151,10 @@ def main():
         # Get the supported sites
         known_hosts = quvi_hosts()
 
+        # Setup quvi
+        parser = ["quvi", "--format=", args.quvi, "--exec"]
+        parser.append("{0} %u".format(args.media_player))
+
         # Listen for GET requests
         pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
 
@@ -163,7 +165,7 @@ def main():
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
-                handler(regex.group(2), regex.group(1), known_hosts, args.parser)
+                handler(regex.group(2), regex.group(1), known_hosts, parser)
     except KeyboardInterrupt:
         pass
     except Exception as e:
