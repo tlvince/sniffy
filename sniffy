@@ -116,11 +116,17 @@ def handler(host, path, known_hosts, parser):
 
     if host in known_hosts:
         logging.info("playing {0}".format(url))
-        # Silence the process
-        # See: http://stackoverflow.com/q/1244723
-        fh = open(os.devnull, "w")
-        subprocess.Popen(parser + [url], stdout=fh, stderr=fh).wait()
-        fh.close()
+
+        cmd = parser + [url]
+        # Output parser/player info if in debug
+        if logging.getLogger().level is 10:
+            subprocess.Popen(cmd).wait()
+        else:
+            # Silence the process
+            # See: http://stackoverflow.com/q/1244723
+            fh = open(os.devnull, "w")
+            subprocess.Popen(cmd, stdout=fh, stderr=fh).wait()
+            fh.close()
 
 def main():
     """Start execution of sniffy."""
