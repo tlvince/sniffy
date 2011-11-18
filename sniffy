@@ -152,8 +152,8 @@ def main():
         known_hosts = quvi_hosts()
 
         # Setup quvi
-        parser = ["quvi", "--format=", args.quvi, "--exec"]
-        parser.append("{0} %u".format(args.media_player))
+        parser = ["quvi", "--format={0}".format(args.quvi), "--exec",
+            "{0} %u".format(args.media_player)]
 
         # Listen for GET requests
         pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
