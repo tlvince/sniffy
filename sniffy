@@ -3,7 +3,6 @@
 
 """Sniff media hosting websites for Flash-free consumption."""
 
-import pcap
 import re
 import logging
 import subprocess
@@ -12,6 +11,9 @@ import os
 import pwd
 import grp
 import sys
+
+import pcap
+import quvi
 
 def drop_privileges(uid_name="nobody", gid_name="nobody"):
     """Drop root privileges.
@@ -82,13 +84,19 @@ def quvi_hosts():
         related.extend(i.split("|"))
     return related
 
-def handler(host, path, known_hosts, parser):
+def parse_url(url):
+    """Return the real media URL."""
+    q = quvi.Quvi()
+    q.parse(url)
+    return q.getproperties()["mediaurl"]
+
+def handler(host, path, known_hosts, player):
     """Parse known media hosting URLs and pass to a player.
 
     host        - A website hostname (e.g. youtube.com).
     path        - The path component of a URL (e.g. /watch?v=0gzA6Xzbh1k).
     known_hosts - A list of hosts supported by the URL parser.
-    parser      - The command line string of the parser.
+    player      - The command line string of the player.
     """
     # Ignore paths that contain:
     blacklist = [".jpg", ".png", ".gif", ".css", ".woff", ".js"]
@@ -114,7 +122,9 @@ def handler(host, path, known_hosts, parser):
     if host in known_hosts:
         logging.info("playing {0}".format(url))
 
-        cmd = parser + [url]
+        media_url = parse_url("mediaurl")
+        cmd = player.split() + [media_url]
+
         # Output parser/player info if in debug
         if logging.getLogger().level is 10:
             subprocess.Popen(cmd).wait()
@@ -150,10 +160,6 @@ def main():
         # Get the supported sites
         known_hosts = quvi_hosts()
 
-        # Setup quvi
-        parser = ["quvi", "--format={0}".format(args.quvi), "--exec",
-            "{0} %u".format(args.media_player)]
-
         # Listen for GET requests
         pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
 
@@ -164,7 +170,8 @@ def main():
         for timestamp, packet in pc:
             regex = pattern.search(packet)
             if regex:
-                handler(regex.group(2), regex.group(1), known_hosts, parser)
+                handler(regex.group(2), regex.group(1), known_hosts,
+                        args.media_player)
     except KeyboardInterrupt:
         pass
     except Exception as e:
