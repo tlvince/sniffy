@@ -120,20 +120,22 @@ def handler(host, path, known_hosts, player):
         host = host[4:]
 
     if host in known_hosts:
-        logging.info("playing {0}".format(url))
+        try:
+            media_url = parse_url(url)
+            cmd = player.split() + [media_url]
 
-        media_url = parse_url("mediaurl")
-        cmd = player.split() + [media_url]
-
-        # Output parser/player info if in debug
-        if logging.getLogger().level is 10:
-            subprocess.Popen(cmd).wait()
-        else:
-            # Silence the process
-            # See: http://stackoverflow.com/q/1244723
-            fh = open(os.devnull, "w")
-            subprocess.Popen(cmd, stdout=fh, stderr=fh).wait()
-            fh.close()
+            logging.info("playing {0}".format(url))
+            # Output parser/player info if in debug
+            if logging.getLogger().level is 10:
+                subprocess.Popen(cmd).wait()
+            else:
+                # Silence the process
+                # See: http://stackoverflow.com/q/1244723
+                fh = open(os.devnull, "w")
+                subprocess.Popen(cmd, stdout=fh, stderr=fh).wait()
+                fh.close()
+        except quvi.QuviError:
+            pass
 
 def main():
     """Start execution of sniffy."""
