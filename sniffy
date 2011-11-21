@@ -127,7 +127,8 @@ def handler(host, path, known_hosts, player):
             media_props = parse_url(url)
             cmd = player.split() + [media_props["mediaurl"]]
 
-            logging.info("playing {0}".format(media_props["pagetitle"]))
+            logging.info("playing '{0}' from {1}".format(
+                media_props["pagetitle"], media_props["hostid"]))
             # Output parser/player info if in debug
             if logging.getLogger().level is 10:
                 subprocess.Popen(cmd).wait()
