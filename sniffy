@@ -139,6 +139,12 @@ def handler(host, path, known_hosts, player):
                 subprocess.Popen(cmd, stdout=fh, stderr=fh).wait()
                 fh.close()
         except quvi.QuviError:
+            # A next media error (code 65) occurs for links like
+            #
+            #   http://vimeo.com/moogaloop/play/clip:30606208/...
+            #
+            # (they begin with a link the looks as though it'll be supported but
+            # is not). Ignore the exception.
             pass
 
 def main():
