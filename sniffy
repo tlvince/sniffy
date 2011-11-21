@@ -85,10 +85,13 @@ def quvi_hosts():
     return related
 
 def parse_url(url):
-    """Return the real media URL."""
+    """Return a dictonary of media properties.
+
+    url - A media webpage URL (in the form http://...)
+    """
     q = quvi.Quvi()
     q.parse(url)
-    return q.getproperties()["mediaurl"]
+    return q.getproperties()
 
 def handler(host, path, known_hosts, player):
     """Parse known media hosting URLs and pass to a player.
