@@ -11,9 +11,13 @@ import os
 import pwd
 import grp
 import sys
+import re
 
 import pcap
 import quvi
+
+# XXX: Python equivelant of whereis?
+libquvi_scripts = os.path.join("/usr", "share", "libquvi-scripts", "lua", "website")
 
 def drop_privileges(uid_name="nobody", gid_name="nobody"):
     """Drop root privileges.
@@ -63,26 +67,37 @@ def parse_arguments():
         help="network interface name")
     return parser.parse_args()
 
-def quvi_hosts():
-    """Format quvi's supported hosts.
+def quvi_hosts(websites):
+    """Returns a list of hosts supported by libquvi-scripts.
 
-    XXX: This is costly and needs some work
-
-    Returns a list of hosts supported by quvi.
+    websites    - A list of libquvi-scripts websites.
     """
-    # Get all hosts
-    hosts = subprocess.check_output(["quvi", "--support"]).split("\n")[:-1]
-    # Filter query formats
-    hosts = [h.split("\t")[0] for h in hosts]
-    # Replace weird sub-strings
-    for pattern in [("%", ""), (".w+", ".com")]:
-        original, replacement = pattern
-        hosts = [h.replace(original, replacement) for h in hosts]
-    # XXX: Split related websites
-    related = []
-    for i in hosts:
-        related.extend(i.split("|"))
-    return related
+    hosts = []
+    domain = re.compile("r.domain\s+=\s+['|\"](.*?)['|\"]")
+
+    # XXX: colleghumor.lua
+    domains = re.compile(
+        "local\sdomains(\s+)?=\s+{['|\"](.*?)['|\"],\s+['|\"](.*?)['|\"]}")
+
+    for website in websites:
+        with open(os.path.join(libquvi_scripts, website)) as f:
+            site = f.read()
+        try:
+            matches = domain.search(site).groups()
+        except AttributeError:
+            matches = domains.search(site).groups()
+        for i in matches:
+            if i != None:
+                hosts.append(i.replace("%", "").replace("w+", "com"))
+    return hosts
+
+def quvi_websites():
+    """Returns a list of libquvi-scripts websites."""
+    websites = []
+    for f in os.listdir(libquvi_scripts):
+        if os.path.splitext(f)[1] == ".lua":
+            websites.append(f)
+    return websites
 
 def parse_url(url):
     """Return a dictonary of media properties.
@@ -170,7 +185,8 @@ def main():
                 name=os.path.basename(__file__)))
 
         # Get the supported sites
-        known_hosts = quvi_hosts()
+        websites = quvi_websites()
+        known_hosts = quvi_hosts(websites)
 
         # Listen for GET requests
         pattern = re.compile("GET (.*) HTTP.*\nHost: ([^\r\n]*)")
