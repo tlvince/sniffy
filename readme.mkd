@@ -10,7 +10,7 @@ your favourite media player.
 
 ## Usage
 
-1. Install [pypcap][], [libquvi][] and the [python-quvi][] bindings
+1. Install [pypcap][], [libquvi][] and the [python-libquvi][] bindings
 2. Run `sniffy` as root (it'll drop privileges as soon as it can)
 3. Browse the [supported sites][sites]
 
@@ -35,7 +35,7 @@ You should follow me on [Twitter][].
   [libquvi]: http://quvi.sourceforge.net/
   [pypcap]: https://code.google.com/p/pypcap/
   [ytmp]: https://github.com/tlvince/ytmp
-  [python-quvi]: https://github.com/metal3d/python-quvi
+  [python-libquvi]: https://github.com/metal3d/python-libquvi
   [home]: http://tlvince.com
   [twitter]: https://twitter.com/tlvince
   [fper]: https://en.wikipedia.org/wiki/Adobe_Flash#Performance
