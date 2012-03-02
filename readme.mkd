@@ -10,9 +10,13 @@ your favourite media player.
 
 ## Usage
 
-1. Install [pypcap][] and [quvi][]
+1. Install [pypcap][], [libquvi][] and the [python-quvi][] bindings
 2. Run `sniffy` as root (it'll drop privileges as soon as it can)
 3. Browse the [supported sites][sites]
+
+## Packages
+
+* [Arch Linux][aur]
 
 ## Why?
 
@@ -28,12 +32,7 @@ Lovingly crafted by [Tom Vincent][home] under the GPL License.
 
 You should follow me on [Twitter][].
 
-## To do
-
-* Consider [python-quvi][]
-* Windows support?
-
-  [quvi]: http://quvi.sourceforge.net/
+  [libquvi]: http://quvi.sourceforge.net/
   [pypcap]: https://code.google.com/p/pypcap/
   [ytmp]: https://github.com/tlvince/ytmp
   [python-quvi]: https://github.com/metal3d/python-quvi
@@ -44,3 +43,4 @@ You should follow me on [Twitter][].
   [lynx]: https://en.wikipedia.org/wiki/Lynx_(web_browser)
   [sites]: http://repo.or.cz/w/libquvi-scripts.git/tree/HEAD:/share/lua/website
   [demo]: http://www.youtube.com/watch?v=86bVfArxspY
+  [aur]: https://aur.archlinux.org/packages.php?ID=54071
