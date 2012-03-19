@@ -60,7 +60,7 @@ def parse_arguments():
     parser.add_argument("-f", "--log-file", help="logging file name")
     parser.add_argument("-m", "--media-player", default="mplayer -fs",
         help="media player command")
-    parser.add_argument("-q", "--quvi", default="best",
+    parser.add_argument("-q", "--quality", default="best",
         choices=["best", "default"], help="quvi media quality format")
     parser.add_argument("-i", "--interface", default="eth0",
         help="network interface name")
@@ -105,15 +105,16 @@ def parse_url(url):
     """
     q = quvi.Quvi()
     q.parse(url)
-    return q.getproperties()
+    return q.get_properties()
 
-def handler(host, path, known_hosts, player):
+def handler(host, path, known_hosts, player, quality):
     """Parse known media hosting URLs and pass to a player.
 
     host        - A website hostname (e.g. youtube.com).
     path        - The path component of a URL (e.g. /watch?v=0gzA6Xzbh1k).
     known_hosts - A list of hosts supported by the URL parser.
     player      - The command line string of the player.
+    quality     - A quvi quality format (one of "best" or "default")
     """
     # Ignore paths that contain:
     blacklist = [".jpg", ".png", ".gif", ".css", ".woff", ".js"]
@@ -138,7 +139,10 @@ def handler(host, path, known_hosts, player):
 
     if host in known_hosts:
         try:
-            media_props = parse_url(url)
+            if quality == "best":
+                media_props = quvi.get_properties_best_quality(url)
+            else:
+                media_props = parse_url(url)
             cmd = player.split() + [media_props["mediaurl"]]
 
             logging.info("playing '{0}' from {1}".format(
@@ -198,7 +202,7 @@ def main():
             regex = pattern.search(packet)
             if regex:
                 handler(regex.group(2), regex.group(1), known_hosts,
-                        args.media_player)
+                        args.media_player, args.quality)
     except KeyboardInterrupt:
         pass
     except Exception as e:
